@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+# USE UTF-8 !!!
+package Tomahawk::module;
+use open ':utf8', ':std';
+use if $] < 5.018, 'encoding','utf8';
+use utf8;
+use strict;
+
+sub execute
+{
+	my %env=@_;
+#	return 1;
+	
+	if ($main::FORM{'service'})
+	{
+		Tomahawk::module(
+			'-type' => "mdl",
+			'-addon' => 'a010',
+			'-name' => $main::FORM{'service'},
+			'-TMP' => 'OUTPUT',
+		);
+		return 1;
+	}
+
+	$env{'addon'}=$main::FORM{'addon'} || 'a010';
+	if ($env{'addon'}=~/^[ae]/)
+	{
+	}
+	else
+	{
+		return undef;
+	}
+	$env{'entity'}=$main::FORM{'entity'} || 'entity';
+	$env{'method'}=$main::FORM{'method'} || 'get';
+	
+	Tomahawk::module(
+		'-type' => "mdl",
+		'-addon' => $env{'addon'},
+		'-name' => $env{'entity'},
+		'-version' => $env{'method'},
+		'-TMP' => 'OUTPUT',
+	);
+	
+	
+	return 1;
+}
+
+1;

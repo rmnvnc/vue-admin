@@ -1,0 +1,17 @@
+# Zapni mod_rewrite
+RewriteEngine On
+
+# Nastav základnú cestu URL pre rewrite
+RewriteBase /admin/
+
+# Ak požadovaný súbor alebo priečinok existuje, nesmeruj na index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Všetko ostatné presmeruj na index.html (SPA routing)
+RewriteRule ^ index.html [L]
+
+# Povoliť prístup všetkým
+Order Allow,Deny
+Allow from all
+Satisfy Any

@@ -1,0 +1,8 @@
+<!CMLTYPE type:name="Cyclone-Markup-Language" type:version="1.0" type:cp="UTF-8"!>
+
+<MODULE>
+	<VAR id="-type" value="smdl" />
+	<VAR id="-category" value="010" />
+	<VAR id="-name" value="autoload" />
+	<VAR id="-TMP" value="OUTPUT" />
+</MODULE>

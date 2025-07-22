@@ -1,0 +1,19 @@
+# mod_rewrite settings
+RewriteEngine On
+
+RewriteBase /admin/rest
+
+RewriteRule ^download\.tom$ download.pl [E=HTTP_AUTHORIZATION:%{HTTP:AUTHORIZATION},L,QSA]
+RewriteRule ^download.pl download.pl [E=HTTP_AUTHORIZATION:%{HTTP:AUTHORIZATION},L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [S=35]
+
+RewriteRule ^favicon\.ico$ favicon.ico [L,QSA]
+RewriteRule ^robots\.txt$ robots.txt [L,QSA]
+RewriteRule ^.*$ core.tom [L,QSA]
+
+Order Deny,Allow
+Allow from all
+Satisfy Any

@@ -1,0 +1,316 @@
+#!/usr/bin/perl
+# USE UTF-8 !!!
+package Tomahawk::module;
+use open ':utf8', ':std';
+use utf8;
+use strict;
+
+use Digest::SHA1  qw(sha1 sha1_hex sha1_base64);
+use App::301::_init;
+
+sub execute
+{
+	my %env=@_;
+	my %env_output;
+	
+	Tomahawk::GetTpl() || return undef;
+
+	$env{'username'}=$env{'username'} || $main::FORM{'username'} || $main::RPC->{'username'};
+	$env{'password'}=$env{'password'} || $main::FORM{'password'} || $main::RPC->{'password'};
+
+	if ($main::USRM{'logged'} eq "Y")
+	{
+		if ($env{'url'})
+		{
+			$main::location=$env{'url'};
+			return 1;
+		}
+	}
+	
+	if ((!$env{'username'})||(!$env{'password'})||(not $env{'username'}=~/^[a-zA-Z0-9_\@\.\-]{3,64}$/))
+	{
+		if (exists $main::FORM{'submit'} || $env{'username'} || $env{'password'})
+		{
+			main::_log('no credentials!');
+			$TPL->{'variables'}{'error'} = 'no credentials';
+			if ($env{'http_error'})
+			{
+				$main::page_statuscode=$env{'http_error'};
+			}
+		}
+		
+		return 1;
+	}
+	
+	my $var;
+	
+	main::_log("ID_user='$main::USRM{ID_user}' ID_session='$main::USRM{ID_session}' IP='$main::ENV{REMOTE_ADDR}' AGENT='$main::ENV{HTTP_USER_AGENT}'");
+	
+	# continue with current USRM_S session data
+	my %USRM_S;if ($main::USRM{'session'}{'USRM_S'}){%USRM_S=%{$main::USRM{'session'}{'USRM_S'}};}
+	
+	my $sql_status="status='Y'";
+		$sql_status="status IN ('Y','W')" if $env{'force_status'};
+	
+	my $sql_user="TRIM(login)=? OR TRIM(email)=?";
+	my @sql_user_bind;
+		push @sql_user_bind,$env{'username'};
+		push @sql_user_bind,$env{'username'};
+	
+	my %sth0=TOM::Database::SQL::execute(qq{
+		SELECT
+			*
+		FROM
+			`$App::301::db_name`.a301_user
+		WHERE
+			($sql_user) AND
+			hostname='$tom::H_cookie' AND
+			$sql_status
+		LIMIT 1
+	},'bind'=>[@sql_user_bind],'quiet'=>1);
+	my %user=$sth0{'sth'}->fetchhash();
+	if ($user{'ID_user'})
+	{
+		main::_log("user with login '$env{'username'}' exists");
+		my $pass=$user{'pass'};
+		if ($pass=~/^SHA1:/)
+		{
+			$env{'password'}='SHA1:'.sha1_hex(Encode::encode_utf8($env{'password'}));
+			main::_log("pass='$env{'password'}'");
+		}
+		elsif ($pass=~/^WPL:salt:/ && not ($env{'password'}=~/^WPL:salt:/))
+		{
+			use Digest;
+			use Digest::Whirlpool;
+			my $whirlpool = Digest->new("Whirlpool");
+			$whirlpool->add(Encode::encode_utf8($env{'password'}.$tom::digest_salt));
+			$env{'password'}='WPL:salt:'.$whirlpool->hexdigest;
+		}
+
+		if ($pass eq $env{'password'})
+		{
+			%main::USRM=%user;
+			$var=1;
+		}
+	}
+	else
+	{
+		main::_log("user with login '$env{'username'}' does not exist");
+		if ($env{'http_error'})
+		{
+			$main::page_statuscode=$env{'http_error'};
+		}
+		$TPL->{'variables'}{'error'} = 'no user';
+		return 1;
+	}
+	
+
+	if ($var)
+	{
+		main::_log("login and password equals");
+		
+		my %sth0=TOM::Database::SQL::execute(qq{
+			SELECT
+				*
+			FROM
+				`$App::301::db_name`.a301_user_online_view
+			WHERE
+				ID_user = ?
+			LIMIT 1
+		},'bind'=>[$main::USRM{'ID_user'}]);
+		if (my %user=$sth0{'sth'}->fetchhash())
+		{
+			main::_log("I'm already online");
+			
+			# archive old session
+			App::301::session::archive($user{'ID_user'},'reset'=>1);
+			
+			if ($user{'logged'} eq "Y")
+			{
+				main::_log("I'm online, and logged in, also reset session");
+				main::_log("I'm already logged (ID_user='$main::USRM{'ID_user'}')",undef,2);
+				
+				$main::USRM{'logged'}="Y";
+				
+				main::_log("login and pass equals, logging again",undef,2);
+				
+				# enter into authorized session
+				$main::USRM{'ID_session'}=$user{'ID_session'};
+				
+				$main::USRM{'session'}=$user{'saved_session'}; # use session variables from authorized session
+				
+				TOM::Database::SQL::execute(qq{
+					UPDATE
+						`$App::301::db_name`.a301_user_online
+					SET
+						domain = ?,
+						logged = 'Y',
+						datetime_request = FROM_UNIXTIME($main::time_current),
+						IP = ?,
+						user_agent = ?,
+						status='Y'
+					WHERE
+						ID_user=?
+					LIMIT 1
+				},'bind'=>[
+					$tom::H,
+					$main::ENV{'REMOTE_ADDR'},
+					$main::ENV{'HTTP_USER_AGENT'},
+					$user{'ID_user'}
+				],'quiet'=>1);
+				
+				$main::USRM_flag="L";
+			}
+			else
+			{
+				main::_log("I'm online, but not logged in");
+				
+				TOM::Database::SQL::execute(qq{
+					UPDATE
+						`$App::301::db_name`.a301_user_online
+					SET
+						status='N'
+					WHERE
+						ID_user='$main::USRM{'ID_user'}'
+					LIMIT 1
+				},'quiet'=>1);
+				$main::USRM{'logged'}="Y";
+				$main::USRM{'ID_session'}=TOM::Utils::vars::genhash(32);
+				
+				$main::USRM{'session'}=$main::USRM{'saved_session'};
+				
+				TOM::Database::SQL::execute(qq{
+					UPDATE
+						`$App::301::db_name`.a301_user_online
+					SET
+						ID_session=?,
+						domain=?,
+						logged='Y',
+						datetime_login=FROM_UNIXTIME($main::time_current),
+						datetime_request=FROM_UNIXTIME($main::time_current),
+						IP=?,
+						user_agent=?,
+						session=?,
+						status='Y'
+					WHERE
+						ID_user='$user{'ID_user'}'
+					LIMIT 1
+				},'quiet'=>1,'bind'=>[
+					$main::USRM{'ID_session'},
+					$tom::H,
+					$main::ENV{'REMOTE_ADDR'},
+					$main::ENV{'HTTP_USER_AGENT'},
+					$main::USRM{'saved_session'}
+				]);
+				
+			}
+			
+		}
+		else # niesom este online (malo pravdepodobny pripad :)))
+		# prisiel som k cudziemu pocitacu a logujem sa tam
+		{
+			main::_log("I'm not online");
+			TOM::Database::SQL::execute(qq{
+				UPDATE
+					`$App::301::db_name`.a301_user_online
+				SET
+					status='N'
+				WHERE
+					ID_user='$main::USRM{'ID_user'}'
+				LIMIT 1
+			},'quiet'=>1);
+			$main::USRM{'logged'}="Y";
+			$main::USRM{'ID_session'}=TOM::Utils::vars::genhash(32);
+			
+			$main::USRM{'session'}=$main::USRM{'saved_session'};
+			
+			# fix unicode in session
+			utf8::decode($main::USRM{'session'}) unless utf8::is_utf8($main::USRM{'session'});
+			
+=head1
+			# get session datas from online table in CVML
+			# save it into cvml object
+			my $cvml=new CVML('data'=>$main::USRM{'session'});
+			# save backup copy of session, to compare it at end of request
+			$main::USRM{'session_save'}=$main::USRM{'session'};
+			# remove all session data
+			undef $main::USRM{'session'};
+			# control CVML session datas as object
+			$App::301::session::serialize=0; # don't serialize into database now!
+			# fill session hash with datas from CVML
+			tie %{$main::USRM{'session'}}, 'App::301::session'; # create empty tie hash
+			%{$main::USRM{'session'}}=%{$cvml->{'hash'}}; # fill tie hash
+=cut
+			
+			main::_log("insert user into online table");
+			main::_log("session=".$main::USRM{'saved_session'});
+			
+			TOM::Database::SQL::execute(qq{
+				INSERT INTO `$App::301::db_name`.a301_user_online
+				(
+					ID_user,
+					ID_session,
+					domain,
+					logged,
+					datetime_login,
+					datetime_request,
+					requests,
+					IP,
+					user_agent,
+					session
+				)
+				VALUES
+				(
+					'$main::USRM{ID_user}',
+					'$main::USRM{ID_session}',
+					'$tom::H',
+					'$main::USRM{logged}',
+					FROM_UNIXTIME($main::time_current),
+					FROM_UNIXTIME($main::time_current),
+					'1',
+					'$main::ENV{'REMOTE_ADDR'}',
+					'$main::ENV{'HTTP_USER_AGENT'}',
+					?
+				)
+			},'bind'=>[
+				$main::USRM{'saved_session'}
+			],'quiet'=>1);
+			
+		}
+		
+		#$XSGN{'TMP'}=$XSGN{'logged-on'};
+		#$tpl_hash{'logged-on'} = 'Y';
+		
+		$main::USRM_flag="L";
+		TOM::Database::SQL::execute(qq{
+			UPDATE
+				`$App::301::db_name`.a301_user
+			SET
+				datetime_last_login = FROM_UNIXTIME($main::time_current),
+				autolog = 'N'
+			WHERE
+				ID_user='$main::USRM{'ID_user'}'
+			LIMIT 1
+		},'quiet'=>1);
+		
+	}
+	else
+	{
+		main::_log("incorrect login/password combination");
+		$main::page_statuscode='401';
+		$TPL->{'variables'}{'error'} = 'invalid combination';
+	}
+	
+	#foreach my $key(keys %main::USRM)
+	#{
+		#$XSGN{'TMP'}=~s|<%$key%>|$main::USRM{$key}|g;
+		#$tpl_hash{'key'} = $main::USRM{$key};
+	#}
+	
+	main::_log("logged on='".$main::USRM{'logged'}."' user='".$main::USRM{'ID_user'}."'' session='".$main::USRM{'ID_session'}."'");
+
+
+	return 1,%env_output;
+}
+
+1;
