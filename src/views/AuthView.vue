@@ -1,7 +1,5 @@
 <template>
     <main>
-        <div v-if="auth.isAuthenticated">Logged in as {{auth.user.login}} <button @click="auth.logout()">Odhlásiť</button></div>
-        <div v-else>Not logged in</div>
         <form @submit.prevent="submitLogin">
             <p v-if="error" class="error">{{ error }}</p>
             <div
@@ -32,6 +30,7 @@
 <script setup>
 import { reactive, computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter, useRoute } from 'vue-router'
 
 const auth = useAuthStore()
 
@@ -67,6 +66,10 @@ function validateField(key) {
 
 const formLoading = ref(false)
 const error = ref('')
+const router = useRouter()
+const route = useRoute()
+
+const redirectPath = route.query.redirect || '/'
 
 const submitLogin = async () => {
     Object.keys(formSetup).forEach(validateField)
@@ -83,6 +86,8 @@ const submitLogin = async () => {
             username: formSetup.login.val,
             password: formSetup.password.val,
         })
+
+        router.push(redirectPath)
     } catch (err) {
         console.log(err.code)
         error.value = err.message || 'Nastala neznáma chyba, skúste sa prihlásiť neskôr'

@@ -1,8 +1,10 @@
 <script setup>
+import TheHeader from './components/layout/TheHeader.vue'
 import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
+    <the-header></the-header>
     <RouterView />
 </template>
 
