@@ -1,56 +1,54 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-    const user = ref(false)
+    const user = reactive({
+        id: null,
+        login: null,
+        email: null,
+        token: null
+    })
 
-    const isAuthenticated = computed(() => !!user.value)
+    const isAuthenticated = computed(() => !!user.token)
 
-    const login = async ({ domain, login, password }) => {
-        console.log(domain, login, password)
-        let url = domain + '/rpc/'
-
-        const xmlBody = `<env:Envelope
-                xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-                xmlns:enc="http://schemas.xmlsoap.org/soap/encoding/"
-                env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-                xmlns:xs="http://www.w3.org/1999/XMLSchema"
-                xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-            <env:Header/>
-            <env:Body>
-                <login xmlns="uri:XULadmin">
-                    <login xmlns="" xsi:type="xs:string">${login}</login>
-                        <pass xmlns="" xsi:type="xs:string">${password}</pass>
-                        <code xmlns="" xsi:type="xs:string"></code>
-                    </login>
-            </env:Body>
-        </env:Envelope>`
+    const login = async ({ username, password }) => {
+        console.log(username, password)
+        let url = '/admin/rest/service/authenticate'
 
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/xml;charset=UTF-8',
-                SOAPAction: 'uri:XULadmin/login',
+                'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: xmlBody,
+            body: JSON.stringify({ username, password })
         })
 
-        const responseData = await response.json()
+        const data = await response.json()
 
-        if (!response.ok) {
-            const message =
-                typeof responseData.message === 'string'
-                    ? responseData.message
-                    : 'Failed to authenticate. Check your login data.'
-            throw new Error(message)
-        } else {
-            user.value = true
+        console.log(response.status);
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Chyba pri prihlásení')
         }
+
+        user.id = data.id || null
+        user.login = data.login || null
+        user.email = data.email || null
+        user.token = data.token || null
+    }
+
+    const logout = () => {
+        user.id = null,
+        user.login = null,
+        user.email = null,
+        user.token = null
     }
 
     return {
+        user,
         isAuthenticated,
         login,
+        logout
     }
 })

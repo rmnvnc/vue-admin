@@ -93,17 +93,6 @@ sub execute
 			$var=1;
 		}
 	}
-	else
-	{
-		main::_log("user with login '$env{'username'}' does not exist");
-		if ($env{'http_error'})
-		{
-			$main::page_statuscode=$env{'http_error'};
-		}
-		$TPL->{'variables'}{'error'} = 'no user';
-		return 1;
-	}
-	
 
 	if ($var)
 	{

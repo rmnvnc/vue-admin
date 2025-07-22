@@ -1,7 +1,9 @@
 <template>
-    <div v-if="auth.isAuthenticated">Logged in</div>
     <main>
-        <form @submit.prevent="authForm">
+        <div v-if="auth.isAuthenticated">Logged in as {{auth.user.login}} <button @click="auth.logout()">Odhlásiť</button></div>
+        <div v-else>Not logged in</div>
+        <form @submit.prevent="submitLogin">
+            <p v-if="error" class="error">{{ error }}</p>
             <div
                 v-for="(field, key) in formSetup"
                 :key="key"
@@ -34,12 +36,6 @@ import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()
 
 const formSetup = reactive({
-    domain: {
-        label: 'Domain',
-        val: '',
-        isValid: true,
-        isRequired: true,
-    },
     login: {
         label: 'Login',
         val: '',
@@ -72,7 +68,7 @@ function validateField(key) {
 const formLoading = ref(false)
 const error = ref('')
 
-const authForm = async () => {
+const submitLogin = async () => {
     Object.keys(formSetup).forEach(validateField)
 
     if (!isFormValid.value) {
@@ -84,13 +80,12 @@ const authForm = async () => {
 
     try {
         await auth.login({
-            domain: formSetup.domain.val,
-            login: formSetup.login.val,
+            username: formSetup.login.val,
             password: formSetup.password.val,
         })
-    } catch (error) {
-        console.log(error.code)
-        error.value = error.message || 'Nastala neznáma chyba, skúste sa prihlásiť neskôr'
+    } catch (err) {
+        console.log(err.code)
+        error.value = err.message || 'Nastala neznáma chyba, skúste sa prihlásiť neskôr'
     } finally {
         formLoading.value = false
     }
