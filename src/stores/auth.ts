@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
+import { User } from '@/types/User'
+
 
 export const useAuthStore = defineStore('auth', () => {
-    const user = reactive({
+    const user = reactive<User>({
         id: null,
         login: null,
         email: null,
@@ -11,8 +13,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => !!user.id)
 
-    const login = async ({ username, password }) => {
-        console.log(username, password)
+    const login = async ({ username, password }: {username: string; password: string}) => {
+
         let url = '/admin/rest/service/authenticate'
 
         const response = await fetch(url, {
