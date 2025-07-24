@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive} from 'vue'
 import { User } from '@/types/User'
+import { apiRoutes } from '@/constants/apiRoutes'
 
 
 export const useAuthStore = defineStore('auth', () => {
@@ -11,13 +12,11 @@ export const useAuthStore = defineStore('auth', () => {
         token: null
     })
 
-    const apiUrl = '/admin/rest/service/authenticate'
-
     const isAuthenticated = computed(() => !!user.id)
 
     const login = async ({ username, password }: {username: string; password: string}) => {
 
-        const response = await fetch(apiUrl, {
+        const response = await fetch(apiRoutes.auth, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const autoLogin = async () => {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(apiRoutes.me, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
