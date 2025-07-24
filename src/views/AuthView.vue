@@ -29,8 +29,9 @@
 
 <script setup>
 import { reactive, computed, ref } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router'
+import { AppError } from '@/types/AppError'
 
 const auth = useAuthStore()
 
@@ -90,7 +91,11 @@ const submitLogin = async () => {
         router.push(redirectPath)
     } catch (err) {
         console.log(err.code)
-        error.value = err.message || 'Nastala neznáma chyba, skúste sa prihlásiť neskôr'
+        if (err instanceof AppError) {
+            error.value = err.message
+        } else {
+            error.value = 'Neočakávaná chyba. Skúste znova.'
+        }
     } finally {
         formLoading.value = false
     }

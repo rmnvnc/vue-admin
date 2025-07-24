@@ -1,19 +1,13 @@
 import { apiRoutes } from '@/constants/apiRoutes'
+import { apiClient } from './apiClient'
 
-export const login = async (username: string, password: string) => {
-    const response = await fetch(apiRoutes.auth, {
+export const postLogin = async (username: string, password: string) => {
+    return apiClient(apiRoutes.auth, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credetinials: 'include',
-        body: JSON.stringify({username, password})
+        body: JSON.stringify({ username, password })
     })
+}
 
-    const data = await response.json()
-    return {
-        status: response.status,
-        ok: response.ok,
-        data
-    }
+export const getMe = async () => {
+    return apiClient(apiRoutes.me)
 }
