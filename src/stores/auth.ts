@@ -11,13 +11,13 @@ export const useAuthStore = defineStore('auth', () => {
         token: null
     })
 
+    const apiUrl = '/admin/rest/service/authenticate'
+
     const isAuthenticated = computed(() => !!user.id)
 
     const login = async ({ username, password }: {username: string; password: string}) => {
 
-        let url = '/admin/rest/service/authenticate'
-
-        const response = await fetch(url, {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -32,23 +32,43 @@ export const useAuthStore = defineStore('auth', () => {
             throw new Error(data.error || 'Chyba pri prihlásení')
         }
 
-        user.id = data.id || null
-        user.login = data.login || null
-        user.email = data.email || null
-        user.token = data.token || null
+        setUser(data);
+    }
+
+    const autoLogin = async () => {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+        })
+
+        const data = await response.json()
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Chyba pri prihlásení')
+        }
+
+        setUser(data);
     }
 
     const logout = () => {
-        user.id = null,
-        user.login = null,
-        user.email = null,
-        user.token = null
+        setUser({ id: null, login: null, email: null, token: null })
+    }
+
+    const setUser = ({id, login, email, token}: Partial<User>) => {
+        user.id = id ?? null
+        user.login = login ?? null
+        user.email = email ?? null
+        user.token = token ?? null
     }
 
     return {
         user,
         isAuthenticated,
         login,
+        autoLogin,
         logout
     }
 })
