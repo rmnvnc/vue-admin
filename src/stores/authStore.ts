@@ -25,8 +25,9 @@ export const useAuthStore = defineStore('auth', () => {
         setUser(result);
     }
 
-    const logout = () => {
-        setUser({ id: null, login: null, email: null, token: null })
+    const logout = async () => {
+        await authService.logout();
+        setUser({})
     }
 
     const setUser = ({id, login, email, token}: Partial<User>) => {

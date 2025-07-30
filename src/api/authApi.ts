@@ -11,3 +11,7 @@ export const postLogin = async (username: string, password: string) => {
 export const getMe = async () => {
     return apiClient(apiRoutes.me)
 }
+
+export const getLogout = async () => {
+    return apiClient(apiRoutes.logout)
+}

@@ -1,4 +1,4 @@
-import { postLogin, getMe } from '@/api/authApi'
+import { postLogin, getMe, getLogout } from '@/api/authApi'
 import type { User } from '@/types/User'
 import { AppError } from '@/types/AppError'
 
@@ -31,5 +31,14 @@ export class AuthService {
             email: data.email,
             token: data.token
         }
+    }
+
+    async logout(): Promise<void>{
+        try {
+            await getLogout(); // nečakáš success = true, pretože logout je pasívny
+        } catch (err) {
+            throw new AppError('Neúspešný logout', 400, 'LOGOUT_FAILURE');
+        }
+        
     }
 }

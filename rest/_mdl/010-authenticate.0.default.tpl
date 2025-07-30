@@ -4,7 +4,7 @@
 	<header>
 	</header>
 	
-	<entity id="main"><![CDATA[[% USE Dumper;USE a210;%]
+	<entity id="main"><![CDATA[
 	[%IF error%]
 	{
 		"success": false,
