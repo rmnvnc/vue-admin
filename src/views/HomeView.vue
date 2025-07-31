@@ -1,6 +1,6 @@
 <template>
     <main>
-        Tu načítam obsah
+        Som obsah homepage
     </main>
 </template>
 
