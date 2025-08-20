@@ -10,7 +10,7 @@ const router = createRouter({
             path: '/',
             name: 'home',
             component: HomeView,
-             meta: { requiresAuth: true}
+            meta: { requiresAuth: true}
         },
         {
             path: '/login',
@@ -33,6 +33,11 @@ router.beforeEach(function(to, _, next) {
         return next({
             name: 'login',
             query: { redirect: to.fullPath },
+            replace: true
+        });
+    } else if(to.name === 'login' && auth.isAuthenticated) {
+        return next({
+            name: 'home',
             replace: true
         });
     } else {
