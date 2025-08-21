@@ -1,13 +1,21 @@
 <script setup>
-import TheHeader from './components/layout/TheHeader.vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+import BaseLayout from './layouts/BaseLayout.vue'
 import SitemapTree from '@/components/sitemap/SitemapTree.vue'
+
+const route = useRoute()
 </script>
 
 <template>
-    <the-header/>
-    <sitemap-tree/>
-    <RouterView />
+    <RouterView v-if="route.name === 'login'"/>
+    <BaseLayout v-else>
+        <template #side>
+            <sitemap-tree />
+        </template>
+        <template #content>
+            <RouterView />
+        </template>
+    </BaseLayout>
 </template>
 
 <style scoped>

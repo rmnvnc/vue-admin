@@ -17,15 +17,9 @@
 
 <script setup lang="ts">
 import type { SitemapNode } from '@/types/SitemapNode.ts'
-import type { PropType } from 'vue'
 import { ref, computed } from 'vue'
 
-const props = defineProps({
-    node: {
-        type: Object as PropType<SitemapNode>,
-        required: true
-    }
-})
+const props = defineProps<{ node: SitemapNode }>()
 
 const isOpen = ref(false)
 const hasChildren = computed(() => props.node.items && props.node.items.length > 0)

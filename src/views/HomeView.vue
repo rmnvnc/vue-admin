@@ -1,7 +1,5 @@
 <template>
-    <main>
-        Som obsah homepage
-    </main>
+    Som obsah homepage
 </template>
 
 <script setup>

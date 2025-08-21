@@ -1,5 +1,4 @@
 <template>
-<pre>{{ sitemap.error }}</pre>
     <nav v-if="auth.isAuthenticated">
         <span v-if="sitemap.loading">Loading sitemap . . .</span>
         <span v-else-if="sitemap.error">{{ sitemap.error.message }}</span>
@@ -27,9 +26,4 @@ watch(
 )
 </script>
 
-<style lang="css" scoped>
-nav {
-    padding: .5rem;
-    border: 1px solid white;
-}
-</style>
+<style lang="css" scoped></style>
