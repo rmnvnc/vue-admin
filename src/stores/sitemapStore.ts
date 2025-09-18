@@ -1,6 +1,6 @@
-import { SitemapNode } from '@/types/SitemapNode'
+import type { SitemapNode } from '@/types/SitemapNode'
 import { SitemapService } from '@/services/sitemapService'
-import { AppError } from '@/types/AppError'
+import type { AppError } from '@/types/AppError'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

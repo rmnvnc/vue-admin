@@ -8,15 +8,20 @@
 	[%IF error%]
 	{
 		"success": false,
-		"error": "[% error | html %]"
+		"error": {
+			"code": 500,
+			"message": "[% error | html %]"
+		}
 	}
 	[% ELSE%]
 	{
 		"success": true,
-		"id": "[%user.ID_user%]",
-		"login": "[%user.login%]",
-		"email": "[%user.email%]",
-		"token": "[%user.ID_user _ '.' _ user.ID_session%]"
+		"data": {		
+			"id": "[%user.ID_user%]",
+			"login": "[%user.login%]",
+			"email": "[%user.email%]",
+			"token": "[%user.ID_user _ '.' _ user.ID_session%]"
+		}
 	}
 	[% END %]
 ]]></entity>

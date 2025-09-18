@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, reactive} from 'vue'
-import { User } from '@/types/User'
+import type { User } from '@/types/User'
 import { AuthService } from '@/services/authService'
 
 const authService = new AuthService()

@@ -13,7 +13,7 @@
                     {{ field.label }} je povinné pole
                 </p>
                 <input
-                    :type="field.type || 'text'"
+                    :type="field.type"
                     :id="`field-${key}`"
                     v-model.trim="field.val"
                     @blur="validateField(key)"
@@ -27,7 +27,7 @@
     </main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router'
@@ -35,9 +35,10 @@ import { AppError } from '@/types/AppError'
 
 const auth = useAuthStore()
 
-const formSetup = reactive({
+const formSetup = reactive<Record<string, { label: string; val: string; isValid: boolean; isRequired: boolean; type: string }>>({
     login: {
         label: 'Login',
+        type: 'text',
         val: '',
         isValid: true,
         isRequired: true,
@@ -55,7 +56,7 @@ const isFormValid = computed(() =>
     Object.values(formSetup).every((f) => !f.isRequired || f.val !== ''),
 )
 
-function validateField(key) {
+function validateField(key: string) {
     const field = formSetup[key]
 
     if (field.isRequired && !field.val) {
@@ -70,7 +71,7 @@ const error = ref('')
 const router = useRouter()
 const route = useRoute()
 
-const redirectPath = route.query.redirect || '/'
+const redirectPath = (route.query.redirect as string) || '/'
 
 const submitLogin = async () => {
     Object.keys(formSetup).forEach(validateField)
@@ -87,15 +88,11 @@ const submitLogin = async () => {
             username: formSetup.login.val,
             password: formSetup.password.val,
         })
-
         router.push(redirectPath)
     } catch (err) {
-        console.log(err.code)
-        if (err instanceof AppError) {
-            error.value = err.message
-        } else {
-            error.value = 'Neočakávaná chyba. Skúste znova.'
-        }
+        const appErr = err as AppError
+        console.log(appErr.message, appErr.code, appErr.status)
+        error.value = appErr.message
     } finally {
         formLoading.value = false
     }

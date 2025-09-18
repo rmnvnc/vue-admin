@@ -7,7 +7,9 @@
 	<entity id="main"><![CDATA[
 	{
 		"success": [%IF error; 'false'; ELSE; 'true'; END%],
-		"logged": "[%notlogged; logout; logged; link%]s"
+		"data": {
+			"logged": "[%notlogged; logout; logged; link%]"
+		}
 	}
 ]]></entity>
 	

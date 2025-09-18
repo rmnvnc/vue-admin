@@ -4,38 +4,35 @@ import { AppError } from '@/types/AppError'
 
 export class AuthService {
     async login(username: string, password: string): Promise<User> {
-        const data = await postLogin(username, password)
+        const response = await postLogin(username, password)
 
-        if (!data.success) {
-            throw new AppError(data.error || 'Neúspešný login', 400, 'AUTH_FAILURE')
-        }
+        const user = response.data! as User
 
         return {
-            id: data.id,
-            login: data.login,
-            email: data.email,
-            token: data.token
-        }
+            id: user.id,
+            login: user.login,
+            email: user.email,
+            token: user.token
+        }   
     }
 
     async me(): Promise<User> {
-        const data = await getMe()
+        const response = await getMe()
 
-        if (!data.success) {
-            throw new AppError(data.error || 'Neúspešný autologin', 400, 'AUTH_FAILURE')
-        }
+        const me = response.data! as User
 
         return {
-            id: data.id,
-            login: data.login,
-            email: data.email,
-            token: data.token
+            id: me.id,
+            login: me.login,
+            email: me.email,
+            token: me.token
         }
     }
 
     async logout(): Promise<void>{
         try {
             await getLogout(); // nečakáš success = true, pretože logout je pasívny
+            // REMOVE TOKEN FROM LOCAL STORAGE
         } catch (err) {
             throw new AppError('Neúspešný logout', 400, 'LOGOUT_FAILURE');
         }
