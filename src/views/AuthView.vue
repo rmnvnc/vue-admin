@@ -97,7 +97,6 @@ const submitLogin = async () => {
         router.push(redirectPath)
     } catch (err) {
         const appErr = err as AppError
-        console.log(appErr.message, appErr.code, appErr.status)
         error.value = appErr.message
     } finally {
         formLoading.value = false

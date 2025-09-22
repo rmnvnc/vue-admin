@@ -23,7 +23,10 @@ export const apiClient = async <T = unknown>(
 
         const data: ApiResponse<T> =
             isJson
-                ? (await res.json()) as ApiResponse<T>
+                ? (await res.json().catch(() => {
+                    throw new AppError('Nesprávný formát odpovede', 500, 'UNKNOWN_ERROR')
+                }
+                )) as ApiResponse<T>
                 : ({ data: null } as ApiResponse<T>)
 
         if (!res.ok) {

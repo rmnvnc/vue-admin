@@ -156,7 +156,7 @@ sub execute
 		{
 			main::_log("failed previous 3 logins", LOG_ERROR);
 			$TPL->{'variables'}{'error'} = 'failed previous 3 logins, account locked for 30 minutes';
-			$main::page_statuscode=$env{'http_error'} if $env{'http_error'};
+			$main::page_statuscode = 401;
 			return 1;
 		}
 
@@ -180,7 +180,7 @@ sub execute
 			{
 				main::_log("password has been expired after 90 days", LOG_ERROR);
 				$TPL->{'variables'}{'error'} = 'password has been expired after 90 days period';
-				$main::page_statuscode=$env{'http_error'} if $env{'http_error'};
+				$main::page_statuscode=401;
 				return 1;
 			}
 			elsif ($history_pass->{'days'} >= (90-14))
@@ -579,11 +579,11 @@ sub execute
 	else
 	{
 		main::_log("incorrect login/password combination");
-		if ($env{'http_error'})
-		{
-			$main::page_statuscode=$env{'http_error'};
-		}
+
 		$TPL->{'variables'}{'error'} = 'the username or password is incorrect';
+		$main::page_statuscode=401;
+
+		return 1;
 	}
 	
 	#foreach my $key(keys %main::USRM)

@@ -8,12 +8,16 @@ export class AuthService {
 
         const user = response.data! as User
 
+        if (!user?.id || !user?.token || !user?.login) {
+            throw new AppError('Neúspešné prihlásenie', 502, 'UNKNOWN_ERROR');
+        }
+
         return {
             id: user.id,
             login: user.login,
             email: user.email,
             token: user.token
-        }   
+        }
     }
 
     async me(): Promise<User> {
@@ -36,6 +40,6 @@ export class AuthService {
         } catch (err) {
             throw new AppError('Neúspešný logout', 400, 'LOGOUT_FAILURE' ,{ cause: err });
         }
-        
+
     }
 }

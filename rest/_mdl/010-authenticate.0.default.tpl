@@ -8,7 +8,6 @@
 	[%IF error%]
 	{
 		"error": {
-			"code": 500,
 			"message": "[% error | html %]"
 		}
 	}

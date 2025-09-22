@@ -1,5 +1,5 @@
 <template>
-    <nav v-if="auth.isAuthenticated">
+    <nav v-if="auth.user">
         <span v-if="sitemap.loading">Loading sitemap . . .</span>
         <span v-else-if="sitemap.error">{{ sitemap.error.message }}</span>
         <SitemapNode v-else-if="sitemap.tree.length" v-for="node in sitemap.tree" :key="node.ID" :node="node" />
@@ -16,7 +16,7 @@ const auth = useAuthStore()
 const sitemap = useSitemapStore()
 
 watch(
-    () => auth.isAuthenticated,
+    () => auth.user,
     (isAuth) => {
         if (isAuth) {
             sitemap.fetchSitemap()

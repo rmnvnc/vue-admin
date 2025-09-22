@@ -1,19 +1,13 @@
 import { defineStore } from 'pinia'
-import { computed, reactive} from 'vue'
+import { ref } from 'vue'
 import type { User } from '@/types/User'
 import { AuthService } from '@/services/authService'
 
 const authService = new AuthService()
 
 export const useAuthStore = defineStore('auth', () => {
-    const user = reactive<User>({
-        id: null,
-        login: null,
-        email: null,
-        token: null
-    })
-
-    const isAuthenticated = computed(() => !!user.id)
+    // User je buď načítaný objekt, alebo null
+    const user = ref<User | null>(null)
 
     const login = async ({ username, password }: {username: string; password: string}) => {
         const result = await authService.login(username, password)
@@ -27,19 +21,19 @@ export const useAuthStore = defineStore('auth', () => {
 
     const logout = async () => {
         await authService.logout();
-        setUser({})
+        clearUser()
     }
 
-    const setUser = ({id, login, email, token}: Partial<User>) => {
-        user.id = id ?? null
-        user.login = login ?? null
-        user.email = email ?? null
-        user.token = token ?? null
+    const setUser = (newUser: User) => {
+        user.value = newUser
+    }
+
+    const clearUser = () => {
+        user.value = null
     }
 
     return {
         user,
-        isAuthenticated,
         login,
         autoLogin,
         logout

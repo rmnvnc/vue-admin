@@ -8,11 +8,11 @@
 	[%IF error%]
 	{
 		"error": {
-			"code": "500",
-			"message": [% error | html %],
+			"message": "[% error | html %]"
 		}
 	}
-	[% ELSE%]
+	[% #Tuto podmienku by mal riesit MDL ktory by mal vratit error alebo user
+		ELSIF (user.ID_user && user.login)%]
 	{
 		"data": {
 			"id": "[%user.ID_user%]",
