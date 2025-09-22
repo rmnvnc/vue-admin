@@ -26,7 +26,7 @@ export const apiClient = async <T = unknown>(
                 ? (await res.json()) as ApiResponse<T>
                 : ({ data: null } as ApiResponse<T>)
 
-        if (!res.ok || !data.success) {
+        if (!res.ok) {
             const message = data.error?.message || res.statusText || 'Neznáma chyba'
             const code = data.error?.code as ErrorCode || 'UNKNOWN_ERROR'
             throw new AppError(message, res.status, code, { cause: data })
@@ -37,8 +37,8 @@ export const apiClient = async <T = unknown>(
         if (err instanceof AppError) throw err
         const AppErr = err as AppError
         throw new AppError(
-            AppErr?.message || 'Sieťová chyba', 
-            AppErr?.status ?? 0, 
+            AppErr?.message || 'Sieťová chyba',
+            AppErr?.status ?? 0,
             AppErr?.code ?? 'NETWORK_ERROR',
             { cause: err }
         )

@@ -6,7 +6,6 @@
 	
 	<entity id="main"><![CDATA[[% USE JSON %]
 {
-	"success": "true",
 	"data": 
 		[%FOREACH item IN items%]
 			[

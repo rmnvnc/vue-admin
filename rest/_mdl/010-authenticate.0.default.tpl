@@ -7,7 +7,6 @@
 	<entity id="main"><![CDATA[
 	[%IF error%]
 	{
-		"success": false,
 		"error": {
 			"code": 500,
 			"message": "[% error | html %]"
@@ -15,7 +14,6 @@
 	}
 	[% ELSE%]
 	{
-		"success": true,
 		"data": {		
 			"id": "[%user.ID_user%]",
 			"login": "[%user.login%]",
