@@ -34,7 +34,7 @@ export class AuthService {
             await getLogout(); // nečakáš success = true, pretože logout je pasívny
             // REMOVE TOKEN FROM LOCAL STORAGE
         } catch (err) {
-            throw new AppError('Neúspešný logout', 400, 'LOGOUT_FAILURE');
+            throw new AppError('Neúspešný logout', 400, 'LOGOUT_FAILURE' ,{ cause: err });
         }
         
     }

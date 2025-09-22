@@ -17,7 +17,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
             const data = await sitemapService.fetch()
             tree.value = data
             console.log(data)
-        } catch (err: any) {
+        } catch (err: unknown) {
             error.value = err as AppError
             tree.value = []
             console.log(error)

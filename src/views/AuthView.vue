@@ -32,10 +32,14 @@ import { reactive, computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router'
 import { AppError } from '@/types/AppError'
+import type { Field } from '@/types/formField'
 
 const auth = useAuthStore()
 
-const formSetup = reactive<Record<string, { label: string; val: string; isValid: boolean; isRequired: boolean; type: string }>>({
+const formSetup = reactive<{
+    login: Field
+    password: Field
+}>({
     login: {
         label: 'Login',
         type: 'text',
@@ -56,7 +60,7 @@ const isFormValid = computed(() =>
     Object.values(formSetup).every((f) => !f.isRequired || f.val !== ''),
 )
 
-function validateField(key: string) {
+function validateField(key: keyof typeof formSetup) {
     const field = formSetup[key]
 
     if (field.isRequired && !field.val) {
@@ -74,7 +78,9 @@ const route = useRoute()
 const redirectPath = (route.query.redirect as string) || '/'
 
 const submitLogin = async () => {
-    Object.keys(formSetup).forEach(validateField)
+    Object.keys(formSetup).forEach((key) =>
+        validateField(key as keyof typeof formSetup),
+    )
 
     if (!isFormValid.value) {
         return

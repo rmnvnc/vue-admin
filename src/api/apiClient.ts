@@ -1,7 +1,8 @@
 import { AppError } from '@/types/AppError'
+import type { ErrorCode } from '@/types/AppError'
 import type { ApiResponse } from '@/types/ApiResponse'
 
-export const apiClient = async <T = any>(
+export const apiClient = async <T = unknown>(
     url: string,
     options?: RequestInit
 ): Promise<ApiResponse<T>> => {
@@ -27,17 +28,18 @@ export const apiClient = async <T = any>(
 
         if (!res.ok || !data.success) {
             const message = data.error?.message || res.statusText || 'Neznáma chyba'
-            const code = data.error?.code || 'UNKNOWN_ERROR'
+            const code = data.error?.code as ErrorCode || 'UNKNOWN_ERROR'
             throw new AppError(message, res.status, code, { cause: data })
         }
 
         return data
-    } catch (err: any) {
-       if (err instanceof AppError) throw err
+    } catch (err: unknown) {
+        if (err instanceof AppError) throw err
+        const AppErr = err as AppError
         throw new AppError(
-            err?.message || 'Sieťová chyba', 
-            err?.status ?? 0, 
-            err?.code ?? 'NETWORK_ERROR',
+            AppErr?.message || 'Sieťová chyba', 
+            AppErr?.status ?? 0, 
+            AppErr?.code ?? 'NETWORK_ERROR',
             { cause: err }
         )
     }
