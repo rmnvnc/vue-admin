@@ -1,4 +1,4 @@
-export type ErrorCode =  
+export type ErrorCode =
     | 'UNKNOWN_ERROR'
     | 'VALIDATION_ERROR'
     | 'UNAUTHORIZED'
@@ -7,6 +7,11 @@ export type ErrorCode =
     | 'SERVER_ERROR'
     | 'NETWORK_ERROR'
     | 'LOGOUT_FAILURE';
+
+type ErrorDetail = {
+    field: string;
+    reason: string;
+};
 
 export class AppError extends Error {
     constructor(
@@ -17,7 +22,7 @@ export class AppError extends Error {
         // A machine-readable error code
         public code: ErrorCode = 'UNKNOWN_ERROR',
         // Optional additional information about the error
-        options?: { cause?: unknown; details?: Record<string, unknown> }
+        options?: { cause?: unknown; details?: ErrorDetail[] }
     ) {
         super(message, options)
         this.name = 'AppError'

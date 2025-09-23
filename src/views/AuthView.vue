@@ -32,7 +32,7 @@ import { reactive, computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router'
 import { AppError } from '@/types/AppError'
-import type { Field } from '@/types/formField'
+import type { Field } from '@/types/FormField'
 
 const auth = useAuthStore()
 
