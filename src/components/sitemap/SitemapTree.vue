@@ -10,20 +10,15 @@
 import SitemapNode from '@/components/sitemap/SitemapNode.vue'
 import { useAuthStore } from '@/stores/authStore';
 import { useSitemapStore } from '@/stores/sitemapStore';
-import { watch } from 'vue';
+import { onMounted } from 'vue';
 
 const auth = useAuthStore()
 const sitemap = useSitemapStore()
 
-watch(
-    () => auth.user,
-    (isAuth) => {
-        if (isAuth) {
-            sitemap.fetchSitemap()
-        }
-    },
-    { immediate: true }
-)
+onMounted(() => {
+    sitemap.fetchSitemap()
+})
+
 </script>
 
 <style lang="css" scoped></style>

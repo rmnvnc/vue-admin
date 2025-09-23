@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { User } from '@/types/User'
 import { AuthService } from '@/services/authService'
+import router from '@/router'
 
 const authService = new AuthService()
 
@@ -20,8 +21,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const logout = async () => {
-        await authService.logout();
+        await authService.logout()
         clearUser()
+        router.push({ name: 'login' })
     }
 
     const setUser = (newUser: User) => {

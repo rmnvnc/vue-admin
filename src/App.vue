@@ -1,6 +1,5 @@
 <template>
-    <RouterView v-if="route.name === 'login'"/>
-    <BaseLayout v-else>
+    <BaseLayout v-if="auth.user">
         <template #side>
             <SitemapTree/>
         </template>
@@ -8,14 +7,16 @@
             <RouterView/>
         </template>
     </BaseLayout>
+    <RouterView v-else/>
 </template>
 
 <script setup lang="ts">
-import { RouterView, useRoute } from 'vue-router'
-import BaseLayout from './layouts/BaseLayout.vue'
+import { RouterView} from 'vue-router'
+import BaseLayout from '@/layouts/BaseLayout.vue'
 import SitemapTree from '@/components/sitemap/SitemapTree.vue'
+import { useAuthStore } from '@/stores/authStore'
 
-const route = useRoute()
+const auth = useAuthStore()
 </script>
 
 <style scoped>

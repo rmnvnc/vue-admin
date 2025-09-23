@@ -12,7 +12,7 @@
 		}
 	}
 	[% #Tuto podmienku by mal riesit MDL ktory by mal vratit error alebo user
-		ELSIF (user.ID_user && user.login)%]
+		ELSE%]
 	{
 		"data": {
 			"id": "[%user.ID_user%]",

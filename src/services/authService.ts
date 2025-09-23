@@ -25,6 +25,10 @@ export class AuthService {
 
         const me = response.data! as User
 
+        if (!me?.id || !me?.token || !me?.login) {
+            throw new AppError('Neúspešné prihlásenie', 502, 'UNKNOWN_ERROR');
+        }
+
         return {
             id: me.id,
             login: me.login,
