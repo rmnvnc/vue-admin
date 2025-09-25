@@ -1,6 +1,6 @@
 import { postLogin, getMe, getLogout } from '@/api/authApi'
-import type { User } from '@/types/User'
-import { AppError } from '@/types/AppError'
+import { AppError } from '@/types'
+import type { User } from '@/types'
 
 export class AuthService {
     async login(username: string, password: string): Promise<User> {
@@ -9,7 +9,7 @@ export class AuthService {
         const user = response.data! as User
 
         if (!user?.id || !user?.token || !user?.login) {
-            throw new AppError('Neúspešné prihlásenie', 502, 'UNKNOWN_ERROR');
+            throw new AppError('Neúspešné prihlásenie', 400, "UNKNOWN_ERROR");
         }
 
         return {
@@ -26,7 +26,7 @@ export class AuthService {
         const me = response.data! as User
 
         if (!me?.id || !me?.token || !me?.login) {
-            throw new AppError('Neúspešné prihlásenie', 502, 'UNKNOWN_ERROR');
+            throw new AppError('Neúspešné prihlásenie', 400, "UNKNOWN_ERROR");
         }
 
         return {
@@ -42,7 +42,7 @@ export class AuthService {
             await getLogout(); // nečakáš success = true, pretože logout je pasívny
             // REMOVE TOKEN FROM LOCAL STORAGE
         } catch (err) {
-            throw new AppError('Neúspešný logout', 400, 'LOGOUT_FAILURE' ,{ cause: err });
+            throw new AppError('Neúspešný logout', 400, "LOGOUT_FAILURE" ,{ cause: err });
         }
 
     }

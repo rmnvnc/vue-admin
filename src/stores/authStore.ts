@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { User } from '@/types/User'
+import type { User } from '@/types'
 import { AuthService } from '@/services/authService'
 import router from '@/router'
 

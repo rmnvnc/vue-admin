@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SitemapNode } from '@/types/SitemapNode.ts'
+import type { SitemapNode } from '@/types'
 import { ref, computed } from 'vue'
 
 const props = defineProps<{ node: SitemapNode }>()

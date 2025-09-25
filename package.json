@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "npm run type-check && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.vue --fix",
     "format": "prettier --write \"src/**/*.{ts,vue,js,json,md,css,scss}\"",
-    "type-check": "vue-tsc --noEmit --strict"
+    "type-check": "npm run generate:types && vue-tsc --noEmit --strict",
+    "generate:types": "openapi-typescript ./types.json --output ./src/types/generated/index.d.ts",
+    "generate:docs": "redocly build-docs ./types.json -o ./types-$(date +%Y%m%d%H%M).html"
   },
   "dependencies": {
     "pinia": "^3.0.3",
@@ -27,7 +29,10 @@
     "eslint": "^9.35.0",
     "eslint-plugin-vue": "~10.2.0",
     "globals": "^16.2.0",
+    "openapi-typescript": "^7.9.1",
+    "openapi-typescript-codegen": "^0.29.0",
     "prettier": "3.5.3",
+    "redoc-cli": "^0.13.21",
     "typescript": "^5.9.2",
     "vite": "^7.0.0",
     "vite-plugin-vue-devtools": "^7.7.7",

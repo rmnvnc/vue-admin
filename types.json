@@ -1,0 +1,526 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Admin API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/me": {
+      "get": {
+        "summary": "Get current user info",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "403": { "$ref": "#/components/responses/Error403" },
+          "404": { "$ref": "#/components/responses/Error404" },
+          "429": { "$ref": "#/components/responses/Error429" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    },
+    "/page_tree": {
+      "get": {
+        "summary": "Get sitemap nodes",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SitemapNode"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "403": { "$ref": "#/components/responses/Error403" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    },
+    "/authenticate": {
+      "post": {
+        "summary": "Authenticate user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "jdoe"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiSuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error400" },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "examples": {
+                  "InvalidCredentials": {
+                    "summary": "Neplatné prihlasovacie údaje",
+                    "value":{ 
+                      "error": 
+                        {
+                        "message": "Neplatné prihlasovacie údaje.",
+                        "code": "INVALID_CREDENTIALSSAS"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "examples": {
+                  "Account disabled": {
+                    "summary": "",
+                    "value":
+                    { "error":
+                      {
+                        "message": "Účet je zablokovaný. Kontaktujte podporu.",
+                        "code": "ACCOUNT_DISABLED"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "examples": {
+                  "Validation errors": {
+                    "summary": "Validation errors",
+                    "value":
+                    { "error":
+                      {
+                        "message": "Skontrolujte zadané údaje.",
+                        "code": "VALIDATION_ERROR",
+                        "details": [
+                          { "field": "username", "reason": "Povinné pole" },
+                          { "field": "password", "reason": "Povinné pole" }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/Error429" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "UNKNOWN_ERROR",
+          "VALIDATION_ERROR",
+          "UNAUTHORIZED",
+          "FORBIDDEN",
+          "NOT_FOUND",
+          "SERVER_ERROR",
+          "NETWORK_ERROR",
+          "LOGOUT_FAILURE",
+          "RATE_LIMITED",
+          "BAD_REQUEST",
+          "INVALID_CREDENTIALS",
+          "ACCOUNT_DISABLED"
+        ]
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "required": [
+          "field",
+          "reason"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "example": "email"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Email má neplatný formát"
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "required": [
+          "message",
+          "code"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Čitateľný popis chyby"
+          },
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorDetail"
+            }
+          }
+        }
+      },
+      "ApiErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApiError"
+              }
+            ]
+          }
+        }
+      },
+      "ApiSuccessResponse": {
+        "type": "object",
+        "description": "Success API response wrapper",
+        "properties": {
+          "data": {
+            "description": "Response payload (may vary by endpoint)"
+          }
+        }
+      },
+      "FormField": {
+        "type": "object",
+        "required": [
+          "label",
+          "type",
+          "val",
+          "isValid",
+          "isRequired"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Email"
+          },
+          "type": {
+            "type": "string",
+            "example": "text"
+          },
+          "val": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "isValid": {
+            "type": "boolean",
+            "example": false
+          },
+          "isRequired": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "SitemapNode": {
+        "type": "object",
+        "required": [
+          "ID",
+          "ID_entity",
+          "name"
+        ],
+        "properties": {
+          "ID": {
+            "type": "integer",
+            "example": 123
+          },
+          "ID_entity": {
+            "type": "integer",
+            "example": 45
+          },
+          "name": {
+            "type": "string",
+            "example": "Golf Clubs"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SitemapNode"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "login",
+          "email",
+          "token"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1234"
+          },
+          "login": {
+            "type": "string",
+            "example": "jdoe"
+          },
+          "email": {
+            "type": "string",
+            "example": "jdoe@mail.com"
+          },
+          "token": {
+            "type": "string",
+            "example": "1234.abcdefg"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error500": {
+        "description": "Unexpected server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorResponse"
+            },
+            "examples": {
+              "server_error": {
+                "summary": "Server error",
+                "value": {
+                  "error": {
+                    "message": "Nastala neočakávaná chyba servera",
+                    "code": "SERVER_ERROR"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error400": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorResponse"
+            },
+            "examples": {
+              "server_error": {
+                "summary": "Bad request",
+                "value": {
+                  "error": {
+                    "message": "Neplatná požiadavka.",
+                    "code": "BAD_REQUEST"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error401": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorResponse"
+            },
+            "examples": {
+              "server_error": {
+                "summary": "Missing/invalid token",
+                "value": {
+                  "error": {
+                    "message": "Prihlásenie je potrebné alebo session expirovala.",
+                    "code": "UNAUTHORIZED"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error403": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorResponse"
+            },
+            "examples": {
+              "server_error": {
+                "summary": "Insufficient role/permission",
+                "value": {
+                  "error": {
+                    "message": "Nemáte oprávnenie na túto akciu.",
+                    "code": "FORBIDDEN"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorResponse"
+            },
+            "examples": {
+              "server_error": {
+                "summary": "Resource not found",
+                "value": {
+                  "error": {
+                    "message": "Požadovaný záznam sa nenašiel.",
+                    "code": "NOT_FOUND"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      
+      "Error422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorResponse" },
+            "examples": {
+              "InvalidInput": {
+                "summary": "Field-level validation errors",
+                "value": {
+                  "error": {
+                    "message": "Neplatné vstupné údaje.",
+                    "code": "VALIDATION_ERROR",
+                    "details": [
+                      { "field": "email", "reason": "Email má neplatný formát" },
+                      { "field": "password", "reason": "Heslo je povinné" }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error429": {
+        "description": "Too Many Requests",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorResponse" },
+            "examples": {
+              "RateLimited": {
+                "summary": "Rate limit exceeded",
+                "value":
+                  { "error": {
+                    "message": "Príliš veľa požiadaviek. Skúste neskôr.",
+                    "code": "RATE_LIMITED"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

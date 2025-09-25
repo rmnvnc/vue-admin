@@ -1,6 +1,4 @@
-import { AppError } from '@/types/AppError'
-import type { ErrorCode } from '@/types/AppError'
-import type { ApiResponse } from '@/types/ApiResponse'
+import { AppError, type ErrorCode, type ApiResponse } from '@/types'
 
 export const apiClient = async <T = unknown>(
     url: string,
@@ -24,7 +22,7 @@ export const apiClient = async <T = unknown>(
         const data: ApiResponse<T> =
             isJson
                 ? (await res.json().catch(() => {
-                    throw new AppError('Nesprávný formát odpovede', 500, 'UNKNOWN_ERROR')
+                    throw new AppError('Nesprávný formát odpovede', 500, "UNKNOWN_ERROR")
                 }
                 )) as ApiResponse<T>
                 : ({ data: null } as ApiResponse<T>)

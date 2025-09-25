@@ -31,14 +31,14 @@
 import { reactive, computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router'
-import { AppError } from '@/types/AppError'
-import type { Field } from '@/types/FormField'
+import { AppError } from '@/types'
+import type { FormField } from '@/types'
 
 const auth = useAuthStore()
 
 const formSetup = reactive<{
-    login: Field
-    password: Field
+    login: FormField
+    password: FormField
 }>({
     login: {
         label: 'Login',

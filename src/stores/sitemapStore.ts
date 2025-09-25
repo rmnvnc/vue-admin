@@ -1,6 +1,5 @@
-import type { SitemapNode } from '@/types/SitemapNode'
+import type { SitemapNode, AppError } from '@/types'
 import { SitemapService } from '@/services/sitemapService'
-import type { AppError } from '@/types/AppError'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -24,7 +23,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
         } finally {
             loading.value = false
         }
-        
+
     }
 
     return {
