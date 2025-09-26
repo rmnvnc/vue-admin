@@ -22,7 +22,7 @@ const router = createRouter({
 router.beforeEach(function(to, _, next) {
     const auth = useAuthStore()
 
-    if (to.meta.requiresAuth && !auth.user) {
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
         if (to.fullPath === '/') {
             return next({
                 name: 'login',
@@ -34,7 +34,7 @@ router.beforeEach(function(to, _, next) {
             query: { redirect: to.fullPath },
             replace: true
         });
-    } else if(to.name === 'login' && auth.user) {
+    } else if(to.name === 'login' && auth.isAuthenticated) {
         return next({
             name: 'home',
             replace: true

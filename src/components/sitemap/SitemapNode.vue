@@ -1,18 +1,18 @@
 <template>
-    <div class="node"  :class="{ opened: isOpen}">
+    <li class="node"  :class="{ opened: isOpen}">
         <div @click="toggle">
             <span v-if="hasChildren">{{ isOpen ? '▾' : '▸' }}</span>
             <span v-else style="width: 1em;"></span>
             {{ node.name }}
         </div>
-        <div v-if="isOpen" class="pl-4" >
+        <ul v-if="isOpen" class="pl-4" >
             <SitemapNode
                 v-for="child in node.items"
                 :key="child.ID"
                 :node="child"
             />
-        </div>
-    </div>
+        </ul>
+    </li>
 </template>
 
 <script setup lang="ts">

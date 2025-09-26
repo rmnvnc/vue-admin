@@ -1,5 +1,5 @@
 <template>
-    <BaseLayout v-if="auth.user">
+    <BaseLayout v-if="auth.isAuthenticated">
         <template #side>
             <SitemapTree/>
         </template>

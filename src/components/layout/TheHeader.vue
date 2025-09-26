@@ -1,5 +1,5 @@
 <template>
-    <template v-if="auth.user">Logged in as {{auth.user.login}} <button @click="auth.logout()">Odhlásiť</button></template>
+    <template v-if="auth.isAuthenticated">Logged in as {{auth.user.login}} <button @click="auth.logout()">Odhlásiť</button></template>
     <template v-else>Not logged in</template>
 </template>
 
